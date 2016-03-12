@@ -241,8 +241,8 @@ function create_config( )
     "botnumber",
     "anti_bot",
     "info",
-    "echo",
-    "calculator",
+    "Echo",
+    "Calculator",
     "lock_join"
     },
 	    sudo_users = {108639314},--Sudo users
