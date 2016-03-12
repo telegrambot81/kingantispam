@@ -1,240 +1,146 @@
-
+--[[
+Print user identification/informations by replying their post or by providing
+their username or print_name.
+!id <text> is the least reliable because it will scan trough all of members
+and print all member with <text> in their print_name.
+chat_info can be displayed on group, send it into PM, or save as file then send
+it into group or PM.
+--]]
 
 do
-local SUDO = 106164433 --put your id here(BOT OWNER ID)
 
-local function setrank(msg, name, value) -- setrank function
-  local hash = nil
-  if msg.to.type == 'chat' then
-    hash = 'rank:'..msg.to.id..':variables'
+  local function scan_name(extra, success, result)
+    local founds = {}
+    for k,member in pairs(result.members) do
+      if extra.name then
+        gp_member = extra.name
+        fields = {'first_name', 'last_name', 'print_name'}
+      elseif extra.user then
+        gp_member = string.gsub(extra.user, '@', '')
+        fields = {'username'}
+      end
+      for k,field in pairs(fields) do
+        if member[field] and type(member[field]) == 'string' then
+          if member[field]:match(gp_member) then
+            founds[tostring(member.id)] = member
+          end
+        end
+      end
+    end
+    if next(founds) == nil then -- Empty table
+      send_large_msg(extra.receiver, (extra.name or extra.user)..' not found on this chat.')
+    else
+      local text = ''
+      for k,user in pairs(founds) do
+        text = text..'Name: '..(user.first_name or '')..' '..(user.last_name or '')..'\n'
+               ..'First name: '..(user.first_name or '')..'\n'
+               ..'Last name: '..(user.last_name or '')..'\n'
+               ..'User name: @'..(user.username or '')..'\n'
+               ..'ID: '..(user.id  or '')..'\n\n'
+      end
+      send_large_msg(extra.receiver, text)
+    end
   end
-  if hash then
-    redis:hset(hash, name, value)
-	return send_msg('chat#id'..msg.to.id, 'مقام کاربر ('..name..') به '..value..' تغییر داده شد ', ok_cb,  true)
+
+  local function action_by_reply(extra, success, result)
+    local text = 'Name: '..(result.from.first_name or '')..' '..(result.from.last_name or '')..'\n'
+                 ..'First name: '..(result.from.first_name or '')..'\n'
+                 ..'Last name: '..(result.from.last_name or '')..'\n'
+                 ..'User name: @'..(result.from.username or '')..'\n'
+                 ..'ID: '..result.from.id
+    send_large_msg(extra.receiver, text)
   end
-end
-local function res_user_callback(extra, success, result) -- /info <username> function
-  if success == 1 then  
-  if result.username then
-   Username = '@'..result.username
-   else
-   Username = 'ندارد'
-  end
-    local text = 'نام کامل : '..(result.first_name or '')..' '..(result.last_name or '')..'\n'
-               ..'یوزر: '..Username..'\n'
-               ..'ایدی کاربری : '..result.id..'\n\n'
-	local hash = 'rank:'..extra.chat2..':variables'
-	local value = redis:hget(hash, result.id)
-    if not value then
-	 if result.id == tonumber(SUDO) then
-	   text = text..'مقام : مدیر کل ربات (Executive Admin) \n\n'
-	  elseif is_admin2(result.id) then
-	   text = text..'مقام : ادمین ربات (Admin) \n\n'
-	  elseif is_owner2(result.id, extra.chat2) then
-	   text = text..'مقام : مدیر کل گروه (Owner) \n\n'
-	  elseif is_momod2(result.id, extra.chat2) then
-	    text = text..'مقام : مدیر گروه (Moderator) \n\n'
+
+  local function returnids(extra, success, result)
+    local chat_id = extra.msg.to.id
+    local text = '['..result.id..'] '..result.title..'.\n'
+                 ..result.members_num..' members.\n\n'
+    i = 0
+    for k,v in pairs(result.members) do
+      i = i+1
+      if v.username then
+        user_name = ' @'..v.username
       else
-	    text = text..'مقام : کاربر (Member) \n\n'
-	 end
-   else
-   text = text..'مقام : '..value..'\n\n'
-  end
-  local uhash = 'user:'..result.id
-  local user = redis:hgetall(uhash)
-  local um_hash = 'msgs:'..result.id..':'..extra.chat2
-  user_info_msgs = tonumber(redis:get(um_hash) or 0)
-  text = text..'تعداد پیام های فرستاده شده : '..user_info_msgs..'\n\n'
-  text = text..'nod32 edited version'
-  send_msg(extra.receiver, text, ok_cb,  true)
-  else
-	send_msg(extra.receiver, extra.user..' نام کاربری مورد نظر یافت نشد.', ok_cb, false)
-  end
-end
-
-local function action_by_id(extra, success, result)  -- /info <ID> function
- if success == 1 then
- if result.username then
-   Username = '@'..result.username
-   else
-   Username = 'ندارد'
- end
-    local text = 'نام کامل : '..(result.first_name or '')..' '..(result.last_name or '')..'\n'
-               ..'یوزر: '..Username..'\n'
-               ..'ایدی کاربری : '..result.id..'\n\n'
-  local hash = 'rank:'..extra.chat2..':variables'
-  local value = redis:hget(hash, result.id)
-  if not value then
-	 if result.id == tonumber(SUDO) then
-	   text = text..'مقام : مدیر کل ربات (Executive Admin) \n\n'
-	  elseif is_admin2(result.id) then
-	   text = text..'مقام : ادمین ربات (Admin) \n\n'
-	  elseif is_owner2(result.id, extra.chat2) then
-	   text = text..'مقام : مدیر کل گروه (Owner) \n\n'
-	  elseif is_momod2(result.id, extra.chat2) then
-	   text = text..'مقام : مدیر گروه (Moderator) \n\n'
-	  else
-	   text = text..'مقام : کاربر (Member) \n\n'
-	  end
-   else
-    text = text..'مقام : '..value..'\n\n'
-  end
-  local uhash = 'user:'..result.id
-  local user = redis:hgetall(uhash)
-  local um_hash = 'msgs:'..result.id..':'..extra.chat2
-  user_info_msgs = tonumber(redis:get(um_hash) or 0)
-  text = text..'تعداد پیام های فرستاده شده : '..user_info_msgs..'\n\n'
-  text = text..'nod32 edited version'
-  send_msg(extra.receiver, text, ok_cb,  true)
-  else
-  send_msg(extra.receiver, 'ایدی شخص مورد نظر در سیستم ثبت نشده است.\nاز دستور زیر استفاده کنید\n/info @username', ok_cb, false)
-  end
-end
-
-local function action_by_reply(extra, success, result)-- (reply) /info  function
-		if result.from.username then
-		   Username = '@'..result.from.username
-		   else
-		   Username = 'ندارد'
-		 end
-    local text = 'نام کامل : '..(result.from.first_name or '')..' '..(result.from.last_name or '')..'\n'
-               ..'یوزر: '..Username..'\n'
-               ..'ایدی کاربری : '..result.from.id..'\n\n'
-	local hash = 'rank:'..result.to.id..':variables'
-		local value = redis:hget(hash, result.from.id)
-		 if not value then
-		    if result.from.id == tonumber(SUDO) then
-		       text = text..'مقام : مدیر کل ربات (Executive Admin) \n\n'
-		     elseif is_admin2(result.from.id) then
-		       text = text..'مقام : ادمین ربات (Admin) \n\n'
-		     elseif is_owner2(result.from.id, result.to.id) then
-		       text = text..'مقام : مدیر کل گروه (Owner) \n\n'
-		     elseif is_momod2(result.from.id, result.to.id) then
-		       text = text..'مقام : مدیر گروه (Moderator) \n\n'
-		 else
-		       text = text..'مقام : کاربر (Member) \n\n'
-			end
-		  else
-		   text = text..'مقام : '..value..'\n\n'
-		 end
-         local user_info = {}
-  local uhash = 'user:'..result.from.id
-  local user = redis:hgetall(uhash)
-  local um_hash = 'msgs:'..result.from.id..':'..result.to.id
-  user_info_msgs = tonumber(redis:get(um_hash) or 0)
-  text = text..'تعداد پیام های فرستاده شده : '..user_info_msgs..'\n\n'
-  text = text..'nod32 edited version'
-  send_msg(extra.receiver, text, ok_cb, true)
-end
-
-local function action_by_reply2(extra, success, result)
-local value = extra.value
-setrank(result, result.from.id, value)
-end
-
-local function run(msg, matches)
- if matches[1]:lower() == 'setrank' then
-  local hash = 'usecommands:'..msg.from.id..':'..msg.to.id
-  redis:incr(hash)
-  if not is_sudo(msg) then
-    return "Only for Sudo"
-  end
-  local receiver = get_receiver(msg)
-  local Reply = msg.reply_id
-  if msg.reply_id then
-  local value = string.sub(matches[2], 1, 1000)
-    msgr = get_message(msg.reply_id, action_by_reply2, {receiver=receiver, Reply=Reply, value=value})
-  else
-  local name = string.sub(matches[2], 1, 50)
-  local value = string.sub(matches[3], 1, 1000)
-  local text = setrank(msg, name, value)
-
-  return text
-  end
-  end
- if matches[1]:lower() == 'info' and not matches[2] then
-  local receiver = get_receiver(msg)
-  local Reply = msg.reply_id
-  if msg.reply_id then
-    msgr = get_message(msg.reply_id, action_by_reply, {receiver=receiver, Reply=Reply})
-  else
-  if msg.from.username then
-   Username = '@'..msg.from.username
-   else
-   Username = 'ندارد'
-   end
-   local text = 'نام : '..(msg.from.first_name or 'ندارد')..'\n'
-   local text = text..'فامیل : '..(msg.from.last_name or 'ندارد')..'\n'	
-   local text = text..'یوزر : '..Username..'\n'
-   local text = text..'ایدی کاربری : '..msg.from.id..'\n\n'
-   local hash = 'rank:'..msg.to.id..':variables'
-	if hash then
-	  local value = redis:hget(hash, msg.from.id)
-	  if not value then
-		if msg.from.id == tonumber(SUDO) then
-		 text = text..'مقام : مدیر کل ربات (Executive Admin) \n\n'
-		elseif is_sudo(msg) then
-		 text = text..'مقام : ادمین ربات (Admin) \n\n'
-		elseif is_owner(msg) then
-		 text = text..'مقام : مدیر کل گروه (Owner) \n\n'
-		elseif is_momod(msg) then
-		 text = text..'مقام : مدیر گروه (Moderator) \n\n'
-		else
-		 text = text..'مقام : کاربر (Member) \n\n'
-		end
-	  else
-	   text = text..'مقام : '..value..'\n'
-	  end
-	end
-    
-	 local uhash = 'user:'..msg.from.id
- 	 local user = redis:hgetall(uhash)
-  	 local um_hash = 'msgs:'..msg.from.id..':'..msg.to.id
-	 user_info_msgs = tonumber(redis:get(um_hash) or 0)
-	 text = text..'تعداد پیام های فرستاده شده : '..user_info_msgs..'\n\n'
-	 if msg.to.type == 'chat' then
-	 text = text..'نام گروه : '..msg.to.title..'\n'
-     text = text..'ایدی گروه : '..msg.to.id
+        user_name = ''
+      end
+      text = text..i..'. ['..v.id..'] '..user_name..' '..(v.first_name or '')..(v.last_name or '')..'\n'
     end
-	text = text..'\n\nnod32 edited version'
-    return send_msg(receiver, text, ok_cb, true)
+    if extra.matches == 'pm' then
+      send_large_msg('user#id'..extra.msg.from.id, text)
+    elseif extra.matches == 'txt' or extra.matches == 'pmtxt' then
+      local textfile = '/tmp/chat_info_'..chat_id..'_'..os.date("%y%m%d.%H%M%S")..'.txt'
+      local file = io.open(textfile, 'w')
+      file:write(text)
+      file:flush()
+      file:close()
+      if extra.matches == 'txt' then
+        send_document('chat#id'..chat_id, textfile, rmtmp_cb, {file_path=textfile})
+      elseif extra.matches == 'pmtxt' then
+        send_document('user#id'..extra.msg.from.id, textfile, rmtmp_cb, {file_path=textfile})
+      end
+    elseif not extra.matches then
+      send_large_msg('chat#id'..chat_id, text)
     end
   end
-  if matches[1]:lower() == 'info' and matches[2] then
-   local user = matches[2]
-   local chat2 = msg.to.id
-   local receiver = get_receiver(msg)
-   if string.match(user, '^%d+$') then
-	  user_info('user#id'..user, action_by_id, {receiver=receiver, user=user, text=text, chat2=chat2})
-    elseif string.match(user, '^@.+$') then
-      username = string.gsub(user, '@', '')
-      msgr = res_user(username, res_user_callback, {receiver=receiver, user=user, text=text, chat2=chat2})
-   end
+
+  local function run(msg, matches)
+    local receiver = get_receiver(msg)
+    if is_chat_msg(msg) then
+      if msg.text == '!id' then
+        if msg.reply_id then
+          if is_mod(msg.from.id, msg.to.id) then
+            msgr = get_message(msg.reply_id, action_by_reply, {receiver=receiver})
+          end
+        else
+          local text = 'Name: '..(msg.from.first_name or '')..' '..(msg.from.last_name or '')..'\n'
+                       ..'First name: '..(msg.from.first_name or '')..'\n'
+                       ..'Last name: '..(msg.from.last_name or '')..'\n'
+                       ..'User name: @'..(msg.from.username or '')..'\n'
+                       ..'ID: ' .. msg.from.id
+          local text = text..'\n\nYou are in group '
+                       ..msg.to.title..' (ID: '..msg.to.id..')'
+          return text
+        end
+      elseif is_mod(msg.from.id, msg.to.id) and matches[1] == 'chat' then
+        if matches[2] == 'pm' or matches[2] == 'txt' or matches[2] == 'pmtxt' then
+          chat_info(receiver, returnids, {msg=msg, matches=matches[2]})
+        else
+          chat_info(receiver, returnids, {msg=msg})
+        end
+      elseif is_mod(msg.from.id, msg.to.id) and string.match(matches[1], '^@.+$') then
+        chat_info(receiver, scan_name, {receiver=receiver, user=matches[1]})
+      elseif is_mod(msg.from.id, msg.to.id) and string.gsub(matches[1], ' ', '_') then
+        user = string.gsub(matches[1], ' ', '_')
+        chat_info(receiver, scan_name, {receiver=receiver, name=matches[1]})
+      end
+    else
+      return 'You are not in a group.'
+    end
   end
+
+  return {
+    description = 'Know your id or the id of a chat members.',
+    usage = {
+      user = {
+        '!id: Return your ID and the chat id if you are in one.'
+      },
+      moderator = {
+        '!id : Return ID of replied user if used by reply.',
+        '!id chat : Return the IDs of the current chat members.',
+        '!id chat txt : Return the IDs of the current chat members and send it as text file.',
+        '!id chat pm : Return the IDs of the current chat members and send it to PM.',
+        '!id chat pmtxt : Return the IDs of the current chat members, save it as text file and then send it to PM.',
+        '!id <id> : Return the IDs of the <id>.',
+        '!id @<user_name> : Return the member @<user_name> ID from the current chat.',
+        '!id <text> : Search for users with <text> on first_name, last_name, or print_name on current chat.'
+      },
+    },
+    patterns = {
+      "^!info$",
+      "^!info (chat) (.*)$",
+      "^!info (.*)$"
+    },
+    run = run
+  }
+
 end
-
-return {
-  description = 'Know your information or the info of a chat members.',
-  usage = {
-	'!info: Return your info and the chat info if you are in one.',
-	'(Reply)!info: Return info of replied user if used by reply.',
-	'!info <id>: Return the info\'s of the <id>.',
-	'!info @<user_name>: Return the member @<user_name> information from the current chat.',
-	'!setrank <userid> <rank>: change members rank.',
-	'(Reply)!setrank <rank>: change members rank.',
-  },
-  patterns = {
-	"^[/!]([Ii][Nn][Ff][Oo])$",
-	"^[/!]([Ii][Nn][Ff][Oo]) (.*)$",
-	"^[/!]([Ss][Ee][Tt][Rr][Aa][Nn][Kk]) (%d+) (.*)$",
-	"^[/!]([Ss][Ee][Tt][Rr][Aa][Nn][Kk]) (.*)$",
-  },
-  run = run
-}
-
-end
-
---Copyright; @behroozyaghi
---Persian Translate; @behroozyaghi
---ch : @nod32team
---کپی بدون ذکر منبع حرام است

@@ -214,10 +214,8 @@ local function returnids(cb_extra, success, result)
     local chatname = result.print_name
     local text = 'Users in '..string.gsub(chatname,"_"," ")..' ('..result.id..'):'..'\n'..''
     for k,v in pairs(result.members) do
-    	if v.print_name then
-        	local username = ""
-        	text = text .. "- " .. string.gsub(v.print_name,"_"," ") .. "  (" .. v.id .. ") \n"
-        end
+        local username = ""
+        text = text .. "- " .. string.gsub(v.print_name,"_"," ") .. "  (" .. v.id .. ") \n"
     end
     send_large_msg(receiver, text)
         local file = io.open("./groups/lists/"..result.id.."memberlist.txt", "w")
@@ -232,10 +230,8 @@ local function returnidsfile(cb_extra, success, result)
     local chatname = result.print_name
     local text = 'Users in '..string.gsub(chatname,"_"," ")..' ('..result.id..'):'..'\n'..''
     for k,v in pairs(result.members) do
-    	if v.print_name then
-        	local username = ""
-        	text = text .. "- " .. string.gsub(v.print_name,"_"," ") .. "  (" .. v.id .. ") \n"
-        end
+        local username = ""
+        text = text .. "- " .. string.gsub(v.print_name,"_"," ") .. "  (" .. v.id .. ") \n"
     end
         local file = io.open("./groups/lists/"..result.id.."memberlist.txt", "w")
         file:write(text)
@@ -683,8 +679,5 @@ return {
   run = run
 }
 end
---Copyright and edit; @behroozyaghi
---Persian Translate; @behroozyaghi
---ch : @nod32team
---کپی بدون ذکر منبع حرام است
+
 
