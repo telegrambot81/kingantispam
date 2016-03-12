@@ -1,5 +1,5 @@
---- https://github.com/amirhmz
---- https://telegram.me/AmirDark
+
+--- https://telegram.me/MHPOfficial
 do
 
 function run(msg, matches)
