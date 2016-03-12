@@ -16,5 +16,4 @@ return {
   run = run
 }
 end
---- https://github.com/amirhmz
---- https://telegram.me/AmirDark
+--- https://telegram.me/MHPOFficial
