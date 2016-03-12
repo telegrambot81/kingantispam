@@ -247,10 +247,10 @@ function create_config( )
     disabled_channels = {},
     moderation = {data = 'data/moderation.json'},
     about_text = [[
-https://github.com/BH-YAGHI/NOD32-BOT.git
+https://github.com/MHPG/MegaBreakerTG.git
 
-channel : @Nod32team
-sodu : @behrooZyaghi
+Channel : @BreakerTGSupport
+Sudo : @MHPOfficial
 ]],
     help_text_realm = [[
 Realm Commands:
@@ -315,11 +315,12 @@ Only sudo users can run this command
 !bc 123456789 Hello !
 This command will send text to [group_id]
 
-ch: @Nod32team
+Channel : @BreakerTGSupport
+Sudo : @MHPOfficial
 
 ]],
     help_text = [[
-NOD32 Commands list :
+Breaker Commands list :
  
 1-banhammer list ^
  
@@ -490,10 +491,10 @@ NOD32 Commands list :
 you can use both "/" and "!" 
 .شما میتوانید از ! و / استفاده کنید
 
-Developer: @BehroozYaghi
+Sudo : @MHPOfficial
 توسعه دهنده
 
-channel: @Nod32team
+Channel : @BreakerTGSupport
 کانال ما
 
 G00D LUCK ^_^
