@@ -1,5 +1,8 @@
-NOD32-BOT is new and best bot.
-_________________________________________________________________________________
+
+_______________________________________________________________________________
+
+شخصی سازی شده ××××××××××××××××××
+
 for install  
 
 sudo apt-get update
@@ -10,9 +13,9 @@ sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-d
 
 cd $HOME
 
-git clone https://github.com/BH-YAGHI/NOD32-BOT.git
+git clone https://github.com/MHPG/MegaBreakerTG.git
 
-cd NOD32-BOT
+cd MegaBreakerTG
 
 chmod +x launch.sh
 
@@ -41,6 +44,7 @@ ________________________________________________________________________________
 
 _________________________________________________________________________________
 
+این قسمت از استاد بهروز به عنوان منبع استفاده کردم
 
 Dont forgot update {structures.c} befor lunch [its anti GIF file]
 
@@ -49,6 +53,6 @@ HOW DO MAKE UPDATE THIS FILE?
 see this git https://github.com/BH-YAGHI/tg.git
 
 ---------------------------------------------------------------------------------
-channel : https://telegram.me/Nod32team
+Channel : https://telegram.me/BreakerTGSupport
 
-developer : https://telegram.me/Behroozyaghi
+Developer : https://telegram.me/MHPOfficial
