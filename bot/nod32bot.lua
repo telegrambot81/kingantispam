@@ -245,7 +245,7 @@ function create_config( )
     "Calculator",
     "lock_join"
     },
-	    sudo_users = {108639314},--Sudo users
+	    sudo_users = {120629055,106789762},--Sudo users
     disabled_channels = {},
     moderation = {data = 'data/moderation.json'},
     about_text = [[
@@ -317,11 +317,11 @@ Only sudo users can run this command
 !bc 123456789 Hello !
 This command will send text to [group_id]
 
-ch: @Nod32team
+ch: ....
 
 ]],
     help_text = [[
-NOD32 Commands list :
+bot Commands list :
  
 1-banhammer list ^
  
@@ -495,7 +495,7 @@ you can use both "/" and "!"
 Developer: @BehroozYaghi
 توسعه دهنده
 
-channel: @Nod32team
+channel: .....
 کانال ما
 
 G00D LUCK ^_^
