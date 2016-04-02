@@ -251,8 +251,8 @@ function create_config( )
     about_text = [[
 https://github.com/BH-YAGHI/NOD32-BOT.git
 
-channel : @Nod32team
-sodu : @behrooZyaghi
+channel : ....
+sodu : Mehdi
 ]],
     help_text_realm = [[
 Realm Commands:
